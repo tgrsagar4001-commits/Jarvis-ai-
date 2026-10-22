@@ -1,0 +1,76 @@
+
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Jarvis AI</title>
+  <style>
+    body {
+      background: #07111f;
+      color: #00e5ff;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 30px 15px;
+    }
+    .box {
+      max-width: 420px;
+      margin: 40px auto;
+      padding: 25px;
+      border: 1px solid #00e5ff;
+      border-radius: 20px;
+      background: #101e30;
+    }
+    button {
+      background: #00e5ff;
+      color: #07111f;
+      padding: 12px 20px;
+      border: 0;
+      border-radius: 10px;
+      font-size: 16px;
+      margin: 8px;
+    }
+    input {
+      width: 90%;
+      padding: 12px;
+      border-radius: 8px;
+      margin: 10px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h1>🤖 JARVIS AI</h1>
+    <p>नमस्कार! मी तुझा वैयक्तिक AI असिस्टंट आहे.</p>
+    <input id="question" placeholder="इथे काहीतरी लिही...">
+    <br>
+    <button onclick="reply()">Ask Jarvis</button>
+    <button onclick="speak()">🎤 बोल</button>
+    <p id="answer">मी तुझ्या प्रश्नाची वाट पाहत आहे.</p>
+  </div>
+  <script>
+    function reply() {
+      const q = document.getElementById('question').value.toLowerCase();
+      let a = "माफ कर, हा प्रश्न समजण्यासाठी मला अजून AI जोडावा लागेल.";
+      if (q.includes('नमस्कार') || q.includes('hello')) a = "नमस्कार भाऊ! मी Jarvis आहे.";
+      else if (q.includes('नाव')) a = "माझं नाव Jarvis AI आहे.";
+      else if (q.includes('वेळ')) a = "तुझ्या फोनमध्ये सध्याची वेळ पाहू शकतोस.";
+      document.getElementById('answer').textContent = a;
+      speechSynthesis.speak(new SpeechSynthesisUtterance(a));
+    }
+    function speak() {
+      if (!('webkitSpeechRecognition' in window)) {
+        alert('आवाज ओळखण्यासाठी Chrome वापर.');
+        return;
+      }
+      const r = new webkitSpeechRecognition();
+      r.lang = 'mr-IN';
+      r.onresult = e => {
+        document.getElementById('question').value = e.results[0][0].transcript;
+        reply();
+      };
+      r.start();
+    }
+  </script>
+</body>
+</html>

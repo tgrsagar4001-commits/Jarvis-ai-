@@ -2,75 +2,156 @@
 <!DOCTYPE html>
 <html lang="mr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>My Jarvis AI</title>
-  <style>
-    body {
-      background: #07111f;
-      color: #00e5ff;
-      font-family: Arial, sans-serif;
-      text-align: center;
-      padding: 30px 15px;
-    }
-    .box {
-      max-width: 420px;
-      margin: 40px auto;
-      padding: 25px;
-      border: 1px solid #00e5ff;
-      border-radius: 20px;
-      background: #101e30;
-    }
-    button {
-      background: #00e5ff;
-      color: #07111f;
-      padding: 12px 20px;
-      border: 0;
-      border-radius: 10px;
-      font-size: 16px;
-      margin: 8px;
-    }
-    input {
-      width: 90%;
-      padding: 12px;
-      border-radius: 8px;
-      margin: 10px 0;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Personal Jarvis AI Assistant</title>
+<style>
+body {
+  margin: 0; padding: 20px;
+  background: #07111f; color: #e9f7ff;
+  font-family: Arial, sans-serif; text-align: center;
+}
+h1 { color: #00e5ff; margin-top: 35px; }
+.panel {
+  max-width: 500px; margin: 25px auto; padding: 22px;
+  border: 1px solid #00bcd4; border-radius: 20px;
+  background: #101f31;
+}
+#status { color: #8cecff; min-height: 24px; }
+#answer {
+  white-space: pre-wrap; line-height: 1.6;
+  text-align: left; overflow-wrap: anywhere;
+}
+button, input {
+  box-sizing: border-box; width: 100%; padding: 14px;
+  margin-top: 12px; border-radius: 12px; font-size: 16px;
+}
+input { background: #fff; color: #111; border: 0; }
+button { border: 0; font-weight: bold; cursor: pointer; }
+#mic { background: #00d9f5; color: #00121b; }
+#ask { background: #147de0; color: white; }
+#stop { background: #34465b; color: white; }
+</style>
 </head>
 <body>
-  <div class="box">
-    <h1>🤖 JARVIS AI</h1>
-    <p>नमस्कार! मी तुझा वैयक्तिक AI असिस्टंट आहे.</p>
-    <input id="question" placeholder="इथे काहीतरी लिही...">
-    <br>
-    <button onclick="reply()">Ask Jarvis</button>
-    <button onclick="speak()">🎤 बोल</button>
-    <p id="answer">मी तुझ्या प्रश्नाची वाट पाहत आहे.</p>
-  </div>
-  <script>
-    function reply() {
-      const q = document.getElementById('question').value.toLowerCase();
-      let a = "माफ कर, हा प्रश्न समजण्यासाठी मला अजून AI जोडावा लागेल.";
-      if (q.includes('नमस्कार') || q.includes('hello')) a = "नमस्कार भाऊ! मी Jarvis आहे.";
-      else if (q.includes('नाव')) a = "माझं नाव Jarvis AI आहे.";
-      else if (q.includes('वेळ')) a = "तुझ्या फोनमध्ये सध्याची वेळ पाहू शकतोस.";
-      document.getElementById('answer').textContent = a;
-      speechSynthesis.speak(new SpeechSynthesisUtterance(a));
+<h1>🤖 JARVIS AI</h1>
+<p>नमस्कार! मी तुझा वैयक्तिक असिस्टंट आहे.</p>
+
+<div class="panel">
+  <p id="status">तुझ्या प्रश्नाची वाट पाहत आहे.</p>
+  <button id="mic">🎤 बोलून प्रश्न विचार</button>
+  <input id="question" placeholder="इथे प्रश्न लिही..." />
+  <button id="ask">Ask Jarvis</button>
+  <button id="stop">🔇 आवाज बंद कर</button>
+  <hr>
+  <h3>Jarvis चे उत्तर</h3>
+  <p id="answer">नमस्कार! बोलण्यासाठी माइक दाब.</p>
+</div>
+
+<script>
+const statusText = document.getElementById("status");
+const questionBox = document.getElementById("question");
+const answerBox = document.getElementById("answer");
+
+function speak(text) {
+  if (!("speechSynthesis" in window)) {
+    statusText.textContent = "या ब्राउझरमध्ये आवाजाची सुविधा उपलब्ध नाही.";
+    return;
+  }
+  speechSynthesis.cancel();
+  const msg = new SpeechSynthesisUtterance(text);
+  msg.lang = "mr-IN";
+  speechSynthesis.speak(msg);
+}
+
+function reply(text) {
+  const q = text.toLowerCase().trim();
+  let answer;
+
+  if (!q) {
+    answer = "कृपया आधी प्रश्न लिही किंवा माइकने बोल.";
+  } else if (/नमस्कार|नमस्ते|hello|hi\b/.test(q)) {
+    answer = "नमस्कार भाऊ! मी Jarvis आहे. तुला काय मदत करू?";
+  } else if (/तुझं नाव|तुझे नाव|who are you/.test(q)) {
+    answer = "माझं नाव Jarvis AI आहे. मी तुझा वैयक्तिक असिस्टंट आहे.";
+  } else if (/वेळ|किती वाजले|time/.test(q)) {
+    answer = "आत्ताची वेळ " +
+      new Date().toLocaleTimeString("mr-IN", {
+        hour: "2-digit", minute: "2-digit"
+      }) + " आहे.";
+  } else if (/तारीख|आज कोणता दिवस|date/.test(q)) {
+    answer = "आजची तारीख " +
+      new Date().toLocaleDateString("mr-IN") + " आहे.";
+  } else if (/कसा आहेस|कशी आहेस|काय चाललं/.test(q)) {
+    answer = "मी छान आहे भाऊ! तू कसा आहेस?";
+  } else if (/धन्यवाद|thank you/.test(q)) {
+    answer = "स्वागत आहे भाऊ! अजून काही मदत हवी का?";
+  } else {
+    answer = "तुझा प्रश्न मला मिळाला: " + text +
+      ". सध्या माझ्याकडे इंटरनेटवरील AI उत्तरे जोडलेली नाहीत.";
+  }
+
+  answerBox.textContent = answer;
+  statusText.textContent = "उत्तर तयार झाले.";
+  speak(answer);
+}
+
+document.getElementById("ask").addEventListener("click", () => {
+  reply(questionBox.value);
+});
+
+questionBox.addEventListener("keydown", event => {
+  if (event.key === "Enter") reply(questionBox.value);
+});
+
+document.getElementById("stop").addEventListener("click", () => {
+  if ("speechSynthesis" in window) speechSynthesis.cancel();
+  statusText.textContent = "आवाज बंद केला.";
+});
+
+document.getElementById("mic").addEventListener("click", () => {
+  const Recognition = window.SpeechRecognition ||
+                     window.webkitSpeechRecognition;
+
+  if (!Recognition) {
+    statusText.textContent =
+      "माइकची सुविधा उपलब्ध नाही. Android Chrome मध्ये वेबसाइट उघड.";
+    return;
+  }
+
+  const recognition = new Recognition();
+  recognition.lang = "mr-IN";
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
+
+  recognition.onstart = () => {
+    statusText.textContent = "🎤 ऐकतोय... आता बोल भाऊ!";
+  };
+
+  recognition.onresult = event => {
+    const text = event.results[0][0].transcript;
+    questionBox.value = text;
+    reply(text);
+  };
+
+  recognition.onerror = event => {
+    statusText.textContent = "माइक एरर: " + event.error +
+      ". Chrome ची माइक परवानगी तपास.";
+  };
+
+  recognition.onend = () => {
+    if (statusText.textContent.includes("ऐकतोय")) {
+      statusText.textContent = "ऐकणे थांबले. पुन्हा माइक दाब.";
     }
-    function speak() {
-      if (!('webkitSpeechRecognition' in window)) {
-        alert('आवाज ओळखण्यासाठी Chrome वापर.');
-        return;
-      }
-      const r = new webkitSpeechRecognition();
-      r.lang = 'mr-IN';
-      r.onresult = e => {
-        document.getElementById('question').value = e.results[0][0].transcript;
-        reply();
-      };
-      r.start();
-    }
-  </script>
+  };
+
+  try {
+    recognition.start();
+  } catch (error) {
+    statusText.textContent =
+      "माइक सुरू झाला नाही. पेज रिफ्रेश करून पुन्हा प्रयत्न कर.";
+  }
+});
+</script>
 </body>
 </html>
